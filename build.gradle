@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+
+configurations {
+    jaxws
+}
+
+dependencies {
+    jaxws group: 'javax.jws', name: 'javax.jws-api', version: '1.1'
+    jaxws 'com.sun.xml.ws:jaxws-tools:2.3.0'
+}
+
+task wsimportInput {
+
+    inputs.dir('src/main/resources/wsdl')
+    outputs.dir('build/generated/wsdl/uk/torreon/wsdl')
+
+    doFirst {
+        mkdir 'build/generated/wsdl'
+    }
+
+    doLast {
+        ant.taskdef(name: 'wsimport',
+                classname: 'com.sun.tools.ws.ant.WsImport',
+                classpath: configurations.jaxws.asPath)
+        ant.wsimport(
+                wsdl: project.file('src/main/resources/wsdl/helloWorld.wsdl'),
+                package: 'uk.torreon.wsdl',
+                sourcedestdir: 'build/generated/wsdl',
+                xnocompile: 'true',
+                disableAuthenticator: 'true',
+                xdebug: 'true'
+        ) {
+        }
+    }
+}
+
+
+task wsimport() {
+    dependsOn(wsimportInput)
+}
+
+compileJava.dependsOn(wsimport)

@@ -1,0 +1,2 @@
+## to run
+gradlew compileJava
